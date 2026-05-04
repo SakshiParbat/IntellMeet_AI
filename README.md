@@ -21,7 +21,8 @@ The project focuses on improving user experience through AI-driven solutions and
 This project demonstrates practical implementation of AI integration in web applications for better user interaction and automation.
 
 ## 📷 Screenshot
-_Add screenshots here_
+<img width="1350" height="611" alt="image" src="https://github.com/user-attachments/assets/21b4a6d6-ffae-4174-ab30-aaa387525dde" />
+
 
 ## 🔗 Live Demo
 _Add deployed link here_
