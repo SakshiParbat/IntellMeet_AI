@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntellMeet – AI-Powered Meeting Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050a12;
+    --bg2: #0b1120;
+    --bg3: #111827;
+    --accent: #00c2ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --text: #f0f4ff;
+    --muted: #8892a4;
+    --border: rgba(255,255,255,0.08);
+    --card: rgba(15,23,42,0.8);
+    --glow: 0 0 40px rgba(0,194,255,0.15);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ─── ANIMATED BACKGROUND ─── */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,194,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,194,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+  .bg-orb {
+    position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0;
+    animation: orbFloat 8s ease-in-out infinite;
+  }
+  .bg-orb1 { width:500px; height:500px; background:rgba(0,194,255,0.06); top:-100px; right:-100px; }
+  .bg-orb2 { width:400px; height:400px; background:rgba(124,58,237,0.06); bottom:-100px; left:-100px; animation-delay:-4s; }
+  @keyframes orbFloat {
+    0%,100%{transform:translate(0,0)}
+    50%{transform:translate(30px,-30px)}
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 1rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(5,10,18,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    animation: slideDown 0.6s ease both;
+  }
+  @keyframes slideDown { from{transform:translateY(-100%);opacity:0} to{transform:translateY(0);opacity:1} }
+  .logo {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-family: 'Clash Display', sans-serif;
+    font-size: 1.4rem; font-weight: 700; color: var(--text);
+    text-decoration: none;
+  }
+  .logo-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: 0.875rem;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-btns { display: flex; gap: 0.75rem; }
+  .btn-ghost {
+    padding: 0.5rem 1.25rem; border-radius: 8px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text); font-family: 'Sora', sans-serif;
+    font-size: 0.875rem; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary {
+    padding: 0.5rem 1.25rem; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #0088bb);
+    border: none; color: #000; font-family: 'Sora', sans-serif;
+    font-size: 0.875rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,194,255,0.3); }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative; z-index: 1;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 6rem 1.5rem 4rem;
+  }
+  .hero-inner { max-width: 800px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.4rem 1rem; border-radius: 50px;
+    border: 1px solid rgba(0,194,255,0.3);
+    background: rgba(0,194,255,0.05);
+    font-size: 0.8rem; color: var(--accent);
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease 0.2s both;
+  }
+  .pulse-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent3);
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+  .hero h1 {
+    font-family: 'Clash Display', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 700; line-height: 1.05;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+  .hero h1 .glow-text {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: 1.1rem; color: var(--muted); line-height: 1.7;
+    max-width: 600px; margin: 0 auto 2.5rem;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  .hero-cta {
+    display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+    animation: fadeUp 0.6s ease 0.5s both;
+  }
+  .btn-large {
+    padding: 0.875rem 2rem; border-radius: 12px; font-size: 1rem;
+    font-family: 'Sora', sans-serif; font-weight: 600; cursor: pointer;
+    transition: all 0.25s; display: flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-large.primary {
+    background: linear-gradient(135deg, var(--accent), #0088bb);
+    border: none; color: #000;
+  }
+  .btn-large.primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,194,255,0.4); }
+  .btn-large.outline {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+  }
+  .btn-large.outline:hover { border-color: rgba(255,255,255,0.3); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ─── HERO VIDEO MOCKUP ─── */
+  .hero-mockup {
+    position: relative; z-index: 1;
+    margin: 4rem auto 0; max-width: 900px;
+    animation: fadeUp 0.8s ease 0.6s both;
+  }
+  .mockup-frame {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 20px; overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5), var(--glow);
+  }
+  .mockup-bar {
+    padding: 0.75rem 1rem; background: var(--bg2);
+    display: flex; align-items: center; gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .dot { width:10px; height:10px; border-radius:50%; }
+  .d-red{background:#ff5f57} .d-yellow{background:#febc2e} .d-green{background:#28c840}
+  .mockup-bar span { margin-left: 0.5rem; font-size: 0.75rem; color: var(--muted); }
+  .mockup-content {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+    min-height: 320px;
+  }
+  .video-tile {
+    background: var(--bg2); border-radius: 12px;
+    border: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 1rem; gap: 0.5rem; position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .video-tile:hover { border-color: rgba(0,194,255,0.3); }
+  .video-tile.active { border-color: var(--accent); }
+  .avatar {
+    width: 52px; height: 52px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 1.1rem; color: #fff;
+  }
+  .a1{background:linear-gradient(135deg,#0088bb,#004488)}
+  .a2{background:linear-gradient(135deg,#7c3aed,#4c1d95)}
+  .a3{background:linear-gradient(135deg,#059669,#064e3b)}
+  .a4{background:linear-gradient(135deg,#dc2626,#7f1d1d)}
+  .a5{background:linear-gradient(135deg,#d97706,#78350f)}
+  .a6{background:linear-gradient(135deg,#db2777,#831843)}
+  .tile-name { font-size: 0.75rem; color: var(--muted); }
+  .tile-badge {
+    position: absolute; bottom: 8px; right: 8px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent3);
+  }
+  .speaking-ring {
+    position: absolute; inset: -3px; border-radius: 15px;
+    border: 2px solid var(--accent);
+    animation: speakRing 1.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes speakRing { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .mockup-sidebar {
+    position: absolute; right: 1.5rem; top: 50%;
+    transform: translateY(-50%);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem;
+    width: 200px; backdrop-filter: blur(10px);
+  }
+  .sidebar-title { font-size: 0.7rem; color: var(--accent); font-weight: 600; margin-bottom: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; }
+  .ai-item {
+    padding: 0.5rem; background: rgba(0,194,255,0.05);
+    border-radius: 8px; font-size: 0.7rem; color: var(--muted);
+    margin-bottom: 0.5rem; border: 1px solid rgba(0,194,255,0.1);
+    animation: aiPulse 3s ease infinite;
+  }
+  @keyframes aiPulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+  /* ─── STATS ─── */
+  .stats {
+    position: relative; z-index: 1;
+    display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 2.5rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label { font-size: 0.875rem; color: var(--muted); margin-top: 0.25rem; }
+
+  /* ─── FEATURES ─── */
+  section { position: relative; z-index: 1; }
+  .section-header { text-align: center; padding: 5rem 2rem 3rem; }
+  .section-tag {
+    display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px;
+    background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.3);
+    color: #a78bfa; font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem;
+  }
+  .section-header h2 {
+    font-family: 'Clash Display', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700;
+    line-height: 1.15; margin-bottom: 1rem;
+  }
+  .section-header p { color: var(--muted); font-size: 1rem; max-width: 500px; margin: 0 auto; }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem; padding: 0 2rem 5rem; max-width: 1100px; margin: 0 auto;
+  }
+  .feat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 2rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s; cursor: default;
+    position: relative; overflow: hidden;
+  }
+  .feat-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent, rgba(0,194,255,0.03));
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .feat-card:hover { border-color: rgba(0,194,255,0.25); transform: translateY(-4px); box-shadow: var(--glow); }
+  .feat-card:hover::before { opacity: 1; }
+  .feat-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 1.25rem;
+  }
+  .ic1{background:rgba(0,194,255,0.1);border:1px solid rgba(0,194,255,0.2)}
+  .ic2{background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2)}
+  .ic3{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2)}
+  .ic4{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2)}
+  .ic5{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2)}
+  .ic6{background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2)}
+  .feat-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; }
+  .feat-card p { color: var(--muted); font-size: 0.875rem; line-height: 1.6; }
+  .feat-tag {
+    display: inline-block; margin-top: 1rem;
+    padding: 0.2rem 0.6rem; border-radius: 20px;
+    background: rgba(0,194,255,0.05); border: 1px solid rgba(0,194,255,0.15);
+    color: var(--accent); font-size: 0.7rem; font-weight: 600;
+  }
+
+  /* ─── AI SECTION ─── */
+  .ai-section {
+    padding: 5rem 2rem;
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+  }
+  .ai-demo {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 20px; overflow: hidden;
+    box-shadow: var(--glow);
+  }
+  .ai-demo-bar {
+    padding: 0.875rem 1.25rem; background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .ai-demo-bar span { font-size: 0.8rem; color: var(--muted); }
+  .ai-demo-content { padding: 1.5rem; }
+  .transcript-line {
+    display: flex; gap: 0.75rem; margin-bottom: 1rem;
+    animation: fadeSlide 0.5s ease both;
+  }
+  .tr-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; flex-shrink: 0;
+    color: #fff;
+  }
+  .tr-text { flex: 1; }
+  .tr-name { font-size: 0.7rem; font-weight: 600; margin-bottom: 0.2rem; }
+  .tr-msg { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+  @keyframes fadeSlide { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+  .ai-summary-box {
+    margin-top: 1rem; padding: 1rem;
+    background: rgba(0,194,255,0.04); border: 1px solid rgba(0,194,255,0.15);
+    border-radius: 12px;
+  }
+  .ai-summary-box .label {
+    font-size: 0.65rem; font-weight: 700; color: var(--accent);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem;
+  }
+  .ai-summary-box p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+  .action-items { margin-top: 1rem; }
+  .action-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem; border-radius: 8px;
+    background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.1);
+    margin-bottom: 0.5rem;
+  }
+  .check-icon { color: var(--accent3); font-size: 0.85rem; }
+  .action-item span { font-size: 0.75rem; color: var(--muted); }
+  .ai-text h2 {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 2.2rem; font-weight: 700; margin-bottom: 1.25rem;
+  }
+  .ai-text p { color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+  .ai-feature-list { list-style: none; }
+  .ai-feature-list li {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    margin-bottom: 0.875rem; font-size: 0.9rem;
+  }
+  .ai-feature-list li::before {
+    content: '✦'; color: var(--accent); flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ─── HOW IT WORKS ─── */
+  .steps { padding: 2rem; max-width: 800px; margin: 0 auto 5rem; }
+  .step {
+    display: flex; gap: 1.5rem; margin-bottom: 2.5rem;
+    padding: 1.5rem; background: var(--card);
+    border: 1px solid var(--border); border-radius: 16px;
+    transition: all 0.3s;
+  }
+  .step:hover { border-color: rgba(0,194,255,0.2); }
+  .step-num {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Clash Display', sans-serif; font-weight: 700;
+    font-size: 1.1rem; color: #000;
+  }
+  .step h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .step p { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
+
+  /* ─── PRICING ─── */
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem; padding: 0 2rem 5rem; max-width: 900px; margin: 0 auto;
+  }
+  .price-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 2rem; transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .price-card.popular {
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+  }
+  .popular-badge {
+    position: absolute; top: 1.25rem; right: 1.25rem;
+    padding: 0.25rem 0.75rem; border-radius: 20px;
+    background: linear-gradient(135deg, var(--accent), #0088bb);
+    color: #000; font-size: 0.7rem; font-weight: 700;
+  }
+  .price-name { font-size: 0.8rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+  .price-amount {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem;
+  }
+  .price-amount span { font-size: 1rem; color: var(--muted); font-family: 'Sora', sans-serif; }
+  .price-desc { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .price-feats { list-style: none; margin-bottom: 1.5rem; }
+  .price-feats li {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.85rem; margin-bottom: 0.625rem; color: var(--muted);
+  }
+  .price-feats li::before { content: '✓'; color: var(--accent3); font-weight: 700; }
+  .btn-plan {
+    width: 100%; padding: 0.75rem; border-radius: 10px;
+    font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-plan.outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-plan.outline:hover { border-color: var(--accent); }
+  .btn-plan.filled { background: linear-gradient(135deg, var(--accent), #0088bb); border: none; color: #000; }
+  .btn-plan.filled:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,194,255,0.3); }
+
+  /* ─── TESTIMONIALS ─── */
+  .testimonials-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; padding: 0 2rem 5rem; max-width: 1000px; margin: 0 auto;
+  }
+  .testi-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.5rem;
+  }
+  .testi-text { font-size: 0.9rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.25rem; }
+  .testi-author { display: flex; align-items: center; gap: 0.75rem; }
+  .testi-av {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem; color: #fff;
+  }
+  .testi-name { font-size: 0.875rem; font-weight: 600; }
+  .testi-role { font-size: 0.75rem; color: var(--muted); }
+  .stars { color: #fbbf24; font-size: 0.8rem; margin-bottom: 0.75rem; }
+
+  /* ─── CTA SECTION ─── */
+  .cta-section {
+    position: relative; z-index: 1;
+    padding: 5rem 2rem; text-align: center;
+    border-top: 1px solid var(--border);
+  }
+  .cta-inner {
+    max-width: 600px; margin: 0 auto;
+    background: linear-gradient(135deg, rgba(0,194,255,0.05), rgba(124,58,237,0.05));
+    border: 1px solid rgba(0,194,255,0.15); border-radius: 24px;
+    padding: 3.5rem 2rem;
+  }
+  .cta-inner h2 {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem;
+  }
+  .cta-inner p { color: var(--muted); margin-bottom: 2rem; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    position: relative; z-index: 1;
+    padding: 3rem 2rem 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .footer-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem;
+  }
+  .footer-brand p { color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem; max-width: 240px; }
+  .footer-links h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+  .footer-links ul { list-style: none; }
+  .footer-links li { margin-bottom: 0.5rem; }
+  .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+  .footer-bottom {
+    max-width: 1100px; margin: 2rem auto 0;
+    padding-top: 1.5rem; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+    font-size: 0.8rem; color: var(--muted);
+  }
+
+  /* ─── MEETING APP UI ─── */
+  #app { display: none; position: fixed; inset: 0; z-index: 200; background: var(--bg); }
+  #app.active { display: flex; flex-direction: column; }
+  .app-topbar {
+    padding: 0.875rem 1.5rem;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .meeting-title { font-weight: 600; }
+  .meeting-id { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .topbar-actions { display: flex; align-items: center; gap: 0.75rem; }
+  .timer {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 1rem; color: var(--accent);
+  }
+  .btn-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--muted); cursor: pointer; display: flex;
+    align-items: center; justify-content: center; font-size: 1rem;
+    transition: all 0.2s;
+  }
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+  .app-main { flex: 1; display: flex; overflow: hidden; }
+  .video-area {
+    flex: 1; padding: 1.5rem;
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem; align-content: start;
+  }
+  .app-sidebar {
+    width: 300px; border-left: 1px solid var(--border);
+    background: var(--bg2); display: flex; flex-direction: column;
+  }
+  .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .tab-btn {
+    flex: 1; padding: 0.875rem 0.5rem;
+    background: transparent; border: none; color: var(--muted);
+    font-family: 'Sora', sans-serif; font-size: 0.8rem; cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { flex: 1; overflow-y: auto; padding: 1rem; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .chat-msg {
+    margin-bottom: 0.875rem;
+    animation: fadeUp 0.3s ease both;
+  }
+  .chat-meta { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+  .chat-meta .name { font-size: 0.75rem; font-weight: 600; }
+  .chat-meta .time { font-size: 0.65rem; color: var(--muted); }
+  .chat-bubble {
+    padding: 0.5rem 0.75rem; border-radius: 10px;
+    font-size: 0.8rem; color: var(--muted); line-height: 1.5;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    display: inline-block; max-width: 100%;
+  }
+  .chat-input-area {
+    padding: 0.75rem; border-top: 1px solid var(--border);
+    display: flex; gap: 0.5rem;
+  }
+  .chat-input {
+    flex: 1; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.5rem 0.75rem;
+    color: var(--text); font-family: 'Sora', sans-serif; font-size: 0.8rem;
+    outline: none;
+  }
+  .chat-input:focus { border-color: var(--accent); }
+  .btn-send {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #0088bb);
+    border: none; color: #000; cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .btn-send:hover { transform: scale(1.05); }
+  .ai-panel h4 { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--accent); }
+  .ai-transcript-live {
+    background: rgba(0,194,255,0.03); border: 1px solid rgba(0,194,255,0.1);
+    border-radius: 10px; padding: 0.75rem; margin-bottom: 0.75rem;
+    min-height: 80px;
+  }
+  .live-text { font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
+  .cursor-blink {
+    display: inline-block; width: 2px; height: 12px;
+    background: var(--accent); margin-left: 2px;
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .summary-box {
+    background: rgba(124,58,237,0.05); border: 1px solid rgba(124,58,237,0.15);
+    border-radius: 10px; padding: 0.75rem; margin-bottom: 0.75rem;
+  }
+  .summary-box .label { font-size: 0.65rem; color: #a78bfa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+  .summary-box p { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+  .action-item-app {
+    display: flex; align-items: flex-start; gap: 0.5rem;
+    padding: 0.5rem; border-radius: 8px;
+    background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.1);
+    margin-bottom: 0.5rem;
+  }
+  .action-item-app input[type="checkbox"] { margin-top: 2px; accent-color: var(--accent3); }
+  .action-item-app span { font-size: 0.75rem; color: var(--muted); }
+  .app-controls {
+    padding: 1rem 1.5rem;
+    background: var(--bg2); border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+  }
+  .ctrl-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+    padding: 0.75rem 1.25rem; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+    font-size: 0.65rem;
+  }
+  .ctrl-btn .icon { font-size: 1.3rem; }
+  .ctrl-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+  .ctrl-btn.off { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #ef4444; }
+  .ctrl-btn.end { background: rgba(239,68,68,0.15); border-color: #ef4444; color: #ef4444; }
+  .ctrl-btn.end:hover { background: #ef4444; color: #fff; }
+  .part-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.5rem; border-radius: 8px;
+    background: rgba(255,255,255,0.02); margin-bottom: 0.5rem;
+  }
+  .part-av {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; color: #fff;
+  }
+  .part-name { flex: 1; font-size: 0.8rem; }
+  .part-status { font-size: 0.75rem; }
+
+  /* ─── SCROLL ANIMATION ─── */
+  .reveal {
+    opacity: 0; transform: translateY(20px);
+    transition: all 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media(max-width:768px) {
+    .nav-links { display: none; }
+    .ai-section { grid-template-columns: 1fr; }
+    .mockup-content { grid-template-columns: 1fr 1fr; }
+    .video-area { grid-template-columns: 1fr 1fr; }
+    .app-sidebar { display: none; }
+    .footer-inner { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-orb bg-orb1"></div>
+<div class="bg-orb bg-orb2"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <div class="logo-icon">🤖</div>
+    Intell<span>Meet</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#ai">AI Intelligence</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#how">How it works</a></li>
+  </ul>
+  <div class="nav-btns">
+    <button class="btn-ghost" onclick="showLogin()">Sign In</button>
+    <button class="btn-primary" onclick="startDemo()">🚀 Start Meeting</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <div class="pulse-dot"></div>
+      AI-Powered Meeting Intelligence · v2.0
+    </div>
+    <h1>Meetings That <span class="glow-text">Think</span> For You</h1>
+    <p>IntellMeet transforms every conversation into actionable insights with real-time AI transcription, smart summaries, and automatic task extraction — so your team can focus on what matters.</p>
+    <div class="hero-cta">
+      <button class="btn-large primary" onclick="startDemo()">▶ Start a Meeting <span>→</span></button>
+      <button class="btn-large outline" onclick="scrollTo('features')">See Features</button>
+    </div>
+  </div>
+</section>
+
+<!-- HERO MOCKUP -->
+<div class="hero-mockup">
+  <div class="mockup-frame">
+    <div class="mockup-bar">
+      <div class="dot d-red"></div><div class="dot d-yellow"></div><div class="dot d-green"></div>
+      <span>IntellMeet – Q2 Strategy Session · 6 participants</span>
+    </div>
+    <div class="mockup-content" style="position:relative;">
+      <div class="video-tile active">
+        <div class="speaking-ring"></div>
+        <div class="avatar a1">AK</div>
+        <div class="tile-name">Aryan Kumar (Host)</div>
+        <div class="tile-badge"></div>
+      </div>
+      <div class="video-tile">
+        <div class="avatar a2">PS</div>
+        <div class="tile-name">Priya Sharma</div>
+        <div class="tile-badge"></div>
+      </div>
+      <div class="video-tile">
+        <div class="avatar a3">RJ</div>
+        <div class="tile-name">Rahul Joshi</div>
+      </div>
+      <div class="video-tile">
+        <div class="avatar a4">SM</div>
+        <div class="tile-name">Sneha Mehta</div>
+        <div class="tile-badge"></div>
+      </div>
+      <div class="video-tile">
+        <div class="avatar a5">VK</div>
+        <div class="tile-name">Vikram Kapoor</div>
+        <div class="tile-badge"></div>
+      </div>
+      <div class="video-tile" style="background:rgba(0,194,255,0.03);border-color:rgba(0,194,255,0.2)">
+        <div style="font-size:1.5rem;color:var(--accent)">🤖</div>
+        <div style="font-size:0.7rem;color:var(--accent)">AI Assistant</div>
+        <div style="font-size:0.65rem;color:var(--muted);text-align:center">Transcribing &amp; analyzing...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-item reveal">
+    <div class="stat-num">40-60%</div>
+    <div class="stat-label">Faster Meeting Follow-ups</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-num">500+</div>
+    <div class="stat-label">Concurrent Participants</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-num">99.95%</div>
+    <div class="stat-label">Uptime SLA</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-num">&lt;200ms</div>
+    <div class="stat-label">Real-time Latency</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-header reveal">
+    <div class="section-tag">✦ Core Features</div>
+    <h2>Everything your team needs<br>in one intelligent platform</h2>
+    <p>From video calls to AI summaries — IntellMeet has you covered end to end.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card reveal">
+      <div class="feat-icon ic1">📹</div>
+      <h3>HD Video Meetings</h3>
+      <p>Crystal-clear video with WebRTC technology supporting up to 500 participants. Screen sharing, recording, and breakout rooms built-in.</p>
+      <span class="feat-tag">WebRTC Powered</span>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon ic2">🤖</div>
+      <h3>AI Meeting Intelligence</h3>
+      <p>Automatic real-time transcription using OpenAI Whisper. Smart summaries and action item extraction with &gt;85% accuracy.</p>
+      <span class="feat-tag">OpenAI Integration</span>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon ic3">✅</div>
+      <h3>Smart Action Items</h3>
+      <p>AI automatically detects commitments and tasks from conversation, assigns owners, and syncs to your project board instantly.</p>
+      <span class="feat-tag">Auto-Assignment</span>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon ic4">💬</div>
+      <h3>Real-Time Chat</h3>
+      <p>In-meeting chat with typing indicators, file sharing, emoji reactions, and threaded replies. All synced in real-time via Socket.io.</p>
+      <span class="feat-tag">Socket.io</span>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon ic5">📊</div>
+      <h3>Kanban Task Boards</h3>
+      <p>Team workspaces with project boards, task management, deadlines, and priority tracking — all created from meeting action items.</p>
+      <span class="feat-tag">Drag & Drop</span>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon ic6">📈</div>
+      <h3>Analytics Dashboard</h3>
+      <p>Meeting frequency, participation metrics, team productivity reports, and engagement analytics with exportable data.</p>
+      <span class="feat-tag">Real-time Charts</span>
+    </div>
+  </div>
+</section>
+
+<!-- AI SECTION -->
+<section id="ai" style="padding:3rem 0">
+  <div class="ai-section reveal">
+    <div class="ai-demo">
+      <div class="ai-demo-bar">
+        <div class="pulse-dot"></div>
+        <span>Live AI Transcription & Analysis</span>
+      </div>
+      <div class="ai-demo-content">
+        <div class="transcript-line">
+          <div class="tr-avatar a1">AK</div>
+          <div class="tr-text">
+            <div class="tr-name">Aryan Kumar</div>
+            <div class="tr-msg">We need to finalize the Q2 roadmap by next Friday. Priya, can you own the backend API documentation?</div>
+          </div>
+        </div>
+        <div class="transcript-line" style="animation-delay:0.1s">
+          <div class="tr-avatar a2">PS</div>
+          <div class="tr-text">
+            <div class="tr-name">Priya Sharma</div>
+            <div class="tr-msg">Yes, I'll have the API docs ready by Wednesday. Also, Rahul should review the auth flow.</div>
+          </div>
+        </div>
+        <div class="transcript-line" style="animation-delay:0.2s">
+          <div class="tr-avatar a3">RJ</div>
+          <div class="tr-text">
+            <div class="tr-name">Rahul Joshi</div>
+            <div class="tr-msg">Done. I'll also handle the Redis caching setup before Thursday's demo.</div>
+          </div>
+        </div>
+        <div class="ai-summary-box">
+          <div class="label">🤖 AI Summary</div>
+          <p>Team aligned on Q2 roadmap delivery. API documentation, auth review, and Redis caching identified as key deliverables for week.</p>
+        </div>
+        <div class="action-items">
+          <div style="font-size:0.7rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">Action Items Detected</div>
+          <div class="action-item">
+            <span class="check-icon">✓</span>
+            <span>Priya — API documentation by Wednesday</span>
+          </div>
+          <div class="action-item">
+            <span class="check-icon">✓</span>
+            <span>Rahul — Auth flow review + Redis setup by Thursday</span>
+          </div>
+          <div class="action-item">
+            <span class="check-icon">✓</span>
+            <span>Team — Q2 roadmap finalized by Friday</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ai-text">
+      <div class="section-tag" style="display:inline-block;margin-bottom:1rem">🧠 AI Intelligence</div>
+      <h2>Your AI Meeting Assistant Works While You Talk</h2>
+      <p>No more manual note-taking or forgotten follow-ups. IntellMeet's AI listens, understands, and acts — in real time.</p>
+      <ul class="ai-feature-list">
+        <li>Real-time speech-to-text transcription with speaker identification</li>
+        <li>Automatic meeting summaries generated within seconds of ending</li>
+        <li>Smart action item extraction with auto-assigned owners</li>
+        <li>Searchable meeting history and transcript archive</li>
+        <li>Sentiment analysis and engagement scoring per participant</li>
+        <li>Export summaries to PDF, Notion, or Slack automatically</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-header reveal">
+    <div class="section-tag">⚡ How It Works</div>
+    <h2>Simple to start,<br>powerful at scale</h2>
+  </div>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">1</div>
+      <div>
+        <h3>Create or Join a Meeting</h3>
+        <p>Start instantly with a unique meeting link, or schedule in advance. Invite teammates via email or share a join code. No downloads needed — works right in the browser.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">2</div>
+      <div>
+        <h3>AI Listens and Transcribes in Real Time</h3>
+        <p>As your meeting happens, IntellMeet AI transcribes every word with speaker labels, captures key decisions, and highlights important moments automatically.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">3</div>
+      <div>
+        <h3>Get AI Summary & Action Items Instantly</h3>
+        <p>The moment your meeting ends, receive a concise summary with all action items, owners, and deadlines — already added to your project board, ready to track.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">4</div>
+      <div>
+        <h3>Track, Collaborate & Improve</h3>
+        <p>Monitor task progress on your Kanban board, review meeting analytics, and watch your team's productivity improve meeting by meeting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-header reveal">
+    <div class="section-tag">💰 Pricing</div>
+    <h2>Start free, scale as you grow</h2>
+    <p>No hidden fees. Cancel anytime. Enterprise-grade security on every plan.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="price-card reveal">
+      <div class="price-name">Starter</div>
+      <div class="price-amount">₹0 <span>/ month</span></div>
+      <div class="price-desc">Perfect for small teams getting started</div>
+      <ul class="price-feats">
+        <li>Up to 10 participants</li>
+        <li>40-minute meeting limit</li>
+        <li>Basic AI transcription</li>
+        <li>5 GB storage</li>
+        <li>Chat & screen share</li>
+      </ul>
+      <button class="btn-plan outline" onclick="startDemo()">Get Started Free</button>
+    </div>
+    <div class="price-card popular reveal">
+      <span class="popular-badge">Most Popular</span>
+      <div class="price-name">Pro</div>
+      <div class="price-amount">₹999 <span>/ month</span></div>
+      <div class="price-desc">For growing teams that need AI power</div>
+      <ul class="price-feats">
+        <li>Up to 100 participants</li>
+        <li>Unlimited meeting duration</li>
+        <li>Full AI intelligence suite</li>
+        <li>Smart action items & Kanban</li>
+        <li>50 GB storage + recordings</li>
+        <li>Analytics dashboard</li>
+      </ul>
+      <button class="btn-plan filled" onclick="startDemo()">Start Pro Trial</button>
+    </div>
+    <div class="price-card reveal">
+      <div class="price-name">Enterprise</div>
+      <div class="price-amount">Custom</div>
+      <div class="price-desc">For large organizations at scale</div>
+      <ul class="price-feats">
+        <li>500+ concurrent participants</li>
+        <li>Custom AI model fine-tuning</li>
+        <li>SSO & advanced security</li>
+        <li>Dedicated SLA — 99.95%</li>
+        <li>Unlimited storage</li>
+        <li>24/7 enterprise support</li>
+      </ul>
+      <button class="btn-plan outline">Contact Sales</button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section>
+  <div class="section-header reveal">
+    <div class="section-tag">⭐ Reviews</div>
+    <h2>Loved by productive teams</h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"IntellMeet ne hamare meeting follow-up time ko literally aadha kar diya. AI jo action items detect karta hai, woh game changer hai."</p>
+      <div class="testi-author">
+        <div class="testi-av a1">AK</div>
+        <div><div class="testi-name">Aryan Kapoor</div><div class="testi-role">CTO, TechVenture India</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"The real-time transcription is incredibly accurate. Our remote team across 3 cities now collaborates better than ever with IntellMeet."</p>
+      <div class="testi-author">
+        <div class="testi-av a2">PS</div>
+        <div><div class="testi-name">Priya Sharma</div><div class="testi-role">Product Manager, Zidio Dev</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"Finally a meeting tool that actually reduces work instead of creating more. The Kanban integration from action items is pure genius."</p>
+      <div class="testi-author">
+        <div class="testi-av a3">RJ</div>
+        <div><div class="testi-name">Rahul Joshi</div><div class="testi-role">Engineering Lead, StartupX</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner reveal">
+    <h2>Ready to make meetings matter?</h2>
+    <p>Join thousands of teams using IntellMeet to turn every conversation into clear action. Start free today — no credit card required.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <button class="btn-large primary" onclick="startDemo()">🚀 Start Free Meeting</button>
+      <button class="btn-large outline">Watch Demo Video</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo" style="margin-bottom:0.5rem">
+        <div class="logo-icon">🤖</div> Intell<span>Meet</span>
+      </div>
+      <p>AI-powered meeting intelligence for modern teams. Built with ❤️ using MERN Stack.</p>
+    </div>
+    <div class="footer-links">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">Pricing</a></li>
+        <li><a href="#">Security</a></li>
+        <li><a href="#">Changelog</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About Zidio</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Developers</h4>
+      <ul>
+        <li><a href="#">API Docs</a></li>
+        <li><a href="#">GitHub</a></li>
+        <li><a href="#">Status</a></li>
+        <li><a href="#">Webhooks</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 IntellMeet by Zidio Development. All rights reserved.</span>
+    <span>Privacy · Terms · Cookies</span>
+  </div>
+</footer>
+
+<!-- MEETING APP -->
+<div id="app">
+  <div class="app-topbar">
+    <div>
+      <div class="meeting-title">Q2 Strategy Meeting 🟢</div>
+      <div class="meeting-id">Meeting ID: IM-2026-8472 · Secure · Encrypted</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="timer" id="timer">00:00</div>
+      <button class="btn-icon" title="Participants">👥</button>
+      <button class="btn-icon" title="Security">🔒</button>
+      <button class="btn-icon" title="Settings">⚙️</button>
+    </div>
+  </div>
+  <div class="app-main">
+    <div class="video-area" id="videoArea">
+      <div class="video-tile active" style="height:160px">
+        <div class="speaking-ring"></div>
+        <div class="avatar a1" style="width:60px;height:60px;font-size:1.2rem">AK</div>
+        <div class="tile-name">You (Aryan Kumar)</div>
+        <div class="tile-badge"></div>
+      </div>
+      <div class="video-tile" style="height:160px">
+        <div class="avatar a2" style="width:60px;height:60px;font-size:1.2rem">PS</div>
+        <div class="tile-name">Priya Sharma</div>
+        <div class="tile-badge"></div>
+      </div>
+      <div class="video-tile" style="height:160px">
+        <div class="avatar a3" style="width:60px;height:60px;font-size:1.2rem">RJ</div>
+        <div class="tile-name">Rahul Joshi</div>
+      </div>
+      <div class="video-tile" style="height:160px">
+        <div class="avatar a4" style="width:60px;height:60px;font-size:1.2rem">SM</div>
+        <div class="tile-name">Sneha Mehta</div>
+        <div class="tile-badge"></div>
+      </div>
+    </div>
+    <div class="app-sidebar">
+      <div class="sidebar-tabs">
+        <button class="tab-btn active" onclick="switchTab('chat')">💬 Chat</button>
+        <button class="tab-btn" onclick="switchTab('ai')">🤖 AI</button>
+        <button class="tab-btn" onclick="switchTab('people')">👥 People</button>
+      </div>
+      <div class="tab-content">
+        <div class="tab-panel active" id="tab-chat">
+          <div id="chatMessages">
+            <div class="chat-msg">
+              <div class="chat-meta"><div class="name" style="color:#00c2ff">Priya</div><div class="time">just now</div></div>
+              <div class="chat-bubble">Q2 roadmap ka draft ready hai, sharing kar rahi hoon abhi 📋</div>
+            </div>
+            <div class="chat-msg">
+              <div class="chat-meta"><div class="name" style="color:#a78bfa">Rahul</div><div class="time">just now</div></div>
+              <div class="chat-bubble">Great! Auth flow review bhi complete ho gaya. Redis caching implement kar liya 🚀</div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-panel" id="tab-ai">
+          <div class="ai-panel">
+            <h4>🎙️ Live Transcript</h4>
+            <div class="ai-transcript-live">
+              <div class="live-text" id="liveTranscript">Aryan: Q2 roadmap finalize karna hai next Friday tak...<span class="cursor-blink"></span></div>
+            </div>
+            <div class="summary-box">
+              <div class="label">AI Summary</div>
+              <p id="aiSummary">Meeting in progress. AI is analyzing conversation and will generate summary when complete.</p>
+            </div>
+            <div class="action-items">
+              <div style="font-size:0.65rem;color:#10b981;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">Detected Action Items</div>
+              <div class="action-item-app">
+                <input type="checkbox"> <span>Priya — API docs ready by Wednesday</span>
+              </div>
+              <div class="action-item-app">
+                <input type="checkbox"> <span>Rahul — Auth review + Redis by Thursday</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-panel" id="tab-people">
+          <div>
+            <div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.75rem">In Meeting (4)</div>
+            <div class="part-item">
+              <div class="part-av a1">AK</div>
+              <div class="part-name">Aryan Kumar <span style="font-size:0.65rem;color:#00c2ff">(Host)</span></div>
+              <div class="part-status">🎤</div>
+            </div>
+            <div class="part-item">
+              <div class="part-av a2">PS</div>
+              <div class="part-name">Priya Sharma</div>
+              <div class="part-status">🔇</div>
+            </div>
+            <div class="part-item">
+              <div class="part-av a3">RJ</div>
+              <div class="part-name">Rahul Joshi</div>
+              <div class="part-status">🔇</div>
+            </div>
+            <div class="part-item">
+              <div class="part-av a4">SM</div>
+              <div class="part-name">Sneha Mehta</div>
+              <div class="part-status">🎤</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-area" id="chatInputArea">
+        <input class="chat-input" id="msgInput" placeholder="Message sabhko..." onkeypress="handleChatKey(event)">
+        <button class="btn-send" onclick="sendMsg()">➤</button>
+      </div>
+    </div>
+  </div>
+  <div class="app-controls">
+    <button class="ctrl-btn" id="micBtn" onclick="toggleMic()">
+      <span class="icon">🎤</span><span>Mute</span>
+    </button>
+    <button class="ctrl-btn off" id="camBtn" onclick="toggleCam()">
+      <span class="icon">📷</span><span>Camera Off</span>
+    </button>
+    <button class="ctrl-btn" onclick="alert('Screen sharing starting...')">
+      <span class="icon">🖥️</span><span>Share</span>
+    </button>
+    <button class="ctrl-btn" onclick="alert('Recording started! 🔴')">
+      <span class="icon">⏺️</span><span>Record</span>
+    </button>
+    <button class="ctrl-btn" onclick="alert('Reactions panel coming soon!')">
+      <span class="icon">😊</span><span>React</span>
+    </button>
+    <button class="ctrl-btn end" onclick="endMeeting()">
+      <span class="icon">📵</span><span>End</span>
+    </button>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div id="loginModal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:400px;position:relative">
+    <button onclick="closeLogin()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer">✕</button>
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:2rem;margin-bottom:0.5rem">🤖</div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700">IntellMeet</div>
+      <div style="color:var(--muted);font-size:0.85rem">Sign in to your workspace</div>
+    </div>
+    <div style="margin-bottom:1rem">
+      <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.4rem">Email Address</label>
+      <input type="email" placeholder="aryan@company.com" style="width:100%;padding:0.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Sora',sans-serif;font-size:0.9rem;outline:none">
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.4rem">Password</label>
+      <input type="password" placeholder="••••••••" style="width:100%;padding:0.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Sora',sans-serif;font-size:0.9rem;outline:none">
+    </div>
+    <button onclick="startDemo();closeLogin()" style="width:100%;padding:0.875rem;background:linear-gradient(135deg,var(--accent),#0088bb);border:none;border-radius:10px;color:#000;font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;cursor:pointer">Sign In</button>
+    <div style="text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--muted)">Don't have an account? <a href="#" style="color:var(--accent)">Sign up free</a></div>
+  </div>
+</div>
+
+<script>
+// ─── SCROLL REVEAL ───
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach((e,i) => {
+    if(e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(r => observer.observe(r));
+
+// ─── NAVIGATION ───
+function scrollTo(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─── LOGIN ───
+function showLogin() {
+  const m = document.getElementById('loginModal');
+  m.style.display = 'flex';
+}
+function closeLogin() {
+  document.getElementById('loginModal').style.display = 'none';
+}
+
+// ─── MEETING APP ───
+let timerInterval, seconds = 0;
+let micOn = true, camOn = false;
+
+function startDemo() {
+  document.getElementById('app').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  startTimer();
+  simulateTranscript();
+}
+
+function endMeeting() {
+  if(confirm('Meeting end karna chahte hain?')) {
+    document.getElementById('app').classList.remove('active');
+    document.body.style.overflow = '';
+    clearInterval(timerInterval);
+    seconds = 0;
+    document.getElementById('timer').textContent = '00:00';
+    showSummaryAlert();
+  }
+}
+
+function showSummaryAlert() {
+  setTimeout(() => {
+    alert('✅ Meeting End!\n\n🤖 AI Summary Generated!\n\n📋 3 Action Items Created:\n• Priya — API docs by Wednesday\n• Rahul — Auth review + Redis by Thursday\n• Team — Q2 roadmap by Friday\n\nSummary email sent to all participants!');
+  }, 500);
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    seconds++;
+    const m = Math.floor(seconds/60).toString().padStart(2,'0');
+    const s = (seconds%60).toString().padStart(2,'0');
+    document.getElementById('timer').textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function toggleMic() {
+  micOn = !micOn;
+  const btn = document.getElementById('micBtn');
+  btn.innerHTML = `<span class="icon">${micOn?'🎤':'🔇'}</span><span>${micOn?'Mute':'Unmute'}</span>`;
+  btn.className = micOn ? 'ctrl-btn' : 'ctrl-btn off';
+}
+
+function toggleCam() {
+  camOn = !camOn;
+  const btn = document.getElementById('camBtn');
+  btn.innerHTML = `<span class="icon">${camOn?'📷':'📵'}</span><span>${camOn?'Cam On':'Camera Off'}</span>`;
+  btn.className = camOn ? 'ctrl-btn' : 'ctrl-btn off';
+}
+
+// ─── CHAT ───
+const chatNames = ['Priya', 'Rahul', 'Sneha'];
+const chatColors = ['#00c2ff','#a78bfa','#10b981'];
+const sampleMsgs = [
+  'Q2 targets clear hain! 🎯',
+  'Documentation main help chahiye?',
+  'Next sprint mein AI features add karte hain',
+  'Testing complete, all green ✅',
+  'Great meeting everyone!',
+  'Action items Notion mein update kar diye 📝'
+];
+
+function sendMsg() {
+  const inp = document.getElementById('msgInput');
+  const val = inp.value.trim();
+  if(!val) return;
+  addChatMsg('You', '#fbbf24', val);
+  inp.value = '';
+  setTimeout(() => {
+    const idx = Math.floor(Math.random() * chatNames.length);
+    addChatMsg(chatNames[idx], chatColors[idx], sampleMsgs[Math.floor(Math.random()*sampleMsgs.length)]);
+  }, 800 + Math.random()*1200);
+}
+
+function handleChatKey(e) {
+  if(e.key === 'Enter') sendMsg();
+}
+
+function addChatMsg(name, color, text) {
+  const div = document.createElement('div');
+  div.className = 'chat-msg';
+  div.innerHTML = `<div class="chat-meta"><div class="name" style="color:${color}">${name}</div><div class="time">now</div></div><div class="chat-bubble">${text}</div>`;
+  const container = document.getElementById('chatMessages');
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+// ─── TABS ───
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['chat','ai','people'][i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.getElementById('chatInputArea').style.display = name === 'chat' ? 'flex' : 'none';
+}
+
+// ─── LIVE TRANSCRIPT SIMULATION ───
+const transcriptLines = [
+  'Aryan: Q2 roadmap finalize karna hai next Friday tak...',
+  'Priya: Haan, API documentation Wednesday tak ready hogi...',
+  'Rahul: Redis caching setup bhi ho jayegi Thursday se pehle...',
+  'Sneha: UI components ke liye design tokens update kar diye...',
+  'Aryan: Bahut achha progress hai team! All on track...',
+  'Priya: Testing environments bhi prepare kar liye hain...',
+];
+let tLine = 0;
+function simulateTranscript() {
+  const el = document.getElementById('liveTranscript');
+  setInterval(() => {
+    el.innerHTML = transcriptLines[tLine % transcriptLines.length] + '<span class="cursor-blink"></span>';
+    tLine++;
+  }, 3000);
+}
+</script>
+</body>
+</html>
